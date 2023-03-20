@@ -33,4 +33,6 @@ build/
 .vscode/
 
 ### kafka
-/data
+/data/kafka1
+/data/zoo1
+
