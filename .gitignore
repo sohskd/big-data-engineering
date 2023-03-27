@@ -36,3 +36,6 @@ build/
 /data/kafka1
 /data/zoo1
 
+/data/downloaded
+
+src/main/resources/gcp-account-file.json
