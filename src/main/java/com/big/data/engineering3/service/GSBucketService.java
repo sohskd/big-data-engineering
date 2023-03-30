@@ -4,9 +4,7 @@ import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,19 +14,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.big.data.engineering3.constant.FileConstants.DOWNLOADED_PATH;
+import static com.big.data.engineering3.constant.FileConstants.GCP_LOCATION;
+
 /**
  * Reference: https://github.com/spring-attic/spring-cloud-gcp/blob/main/spring-cloud-gcp-samples/spring-cloud-gcp-storage-resource-sample/src/main/java/com/example/WebController.java
  */
 @Slf4j
 @Configuration
 public class GSBucketService {
-
-    //    @Value("gs://[YOUR_GCS_BUCKET]/[GCS_FILE_NAME]")
-    @Value("gs://mock_raw_ebd_2023/20230101/studentAssessment.csv")
-    private Resource gcsResource;
-
-    @Value("gs://mock_raw_ebd_2023/20230101/studentAssessment1.csv")
-    private Resource gcsResource1;
 
     @Value("${gcp.project.id}")
     private String gcpProjectId;
@@ -40,24 +34,24 @@ public class GSBucketService {
     private String gcpBucketRawId;
 
     public List<Blob> downloadBlobsFromRawBucket() {
-        List<Blob> listOfBlobs = getListOfBlobsStartWith(gcpProjectId, gcpBucketRawId, "des_raw_csv/");
+        List<Blob> listOfBlobs = getListOfBlobsStartWith(gcpProjectId, gcpBucketRawId, GCP_LOCATION);
         return downloadBlobs(listOfBlobs);
     }
 
     private List<Blob> downloadBlobs(List<Blob> listOfBlobs) {
         List<Blob> blobsToDownload = listOfBlobs.stream().filter(b -> {
-            Path p = Paths.get(String.format("data/downloaded/%s", b.getName()));
+            Path p = Paths.get(String.format(DOWNLOADED_PATH, b.getName()));
             return !Files.exists(p);
         }).toList();
 
-        blobsToDownload.forEach(b -> b.downloadTo(Paths.get(String.format("data/downloaded/%s", b.getName()))));
+        blobsToDownload.forEach(b -> b.downloadTo(Paths.get(String.format(DOWNLOADED_PATH, b.getName()))));
         return blobsToDownload;
     }
 
     public void writeToLandingBucket(List<Blob> blobList) {
         blobList.forEach(b -> {
             try {
-                uploadObject(gcpProjectId, gcpBucketLandingId, b.getName(), String.format("data/downloaded/%s", b.getName()));
+                uploadObject(gcpProjectId, gcpBucketLandingId, b.getName(), String.format(DOWNLOADED_PATH, b.getName()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
