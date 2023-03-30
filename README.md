@@ -1,18 +1,7 @@
-# Test kafka consumer
+# Data Ingestion
 
-1. run ```docker-compose up -d``` in scripts folder
-2. enter container kafka broker. ```docker exec -it <confluentinc/cp-kafka:5.5.1 container id> bash```
-3. create topic. ```./usr/bin/kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic test-topic```
-4. check topic. ```./usr/bin/kafka-topics --list --bootstrap-server localhost:9092```
-5. start spring boot server
-6. publish message to topic ```./usr/bin/kafka-console-producer --broker-list localhost:9092 --topic test-topic```
-
-# Test kafka producer and consumer
-
-
-1. run ```docker-compose up -d``` in scripts folder
-2. enter container kafka broker. ```docker exec -it <confluentinc/cp-kafka:5.5.1 container id> bash```
-3. create topic. ```./usr/bin/kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic test-topic```
-4. check topic. ```./usr/bin/kafka-topics --list --bootstrap-server localhost:9092```
-5. start spring boot server
-6. By default, server will read student assessment csv in data folder and publish to topic. consumer will consume and print it out.
+1. Go to ```https://console.cloud.google.com/storage/browser/mock_raw_ebd_2023/des_raw_csv?project=ebd2023&pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&prefix=&forceOnObjectsSortingFiltering=false``` and upload files in raw zone.
+2. run ```gcloud auth application-default login ```, find ```application_default_credentials.json``` in your local and paste under resources folder as ```gcp-account-file.json```
+3. Start spring server.
+4. file should be ingested in ```https://console.cloud.google.com/storage/browser/zone_landing_ebd_2023/des_raw_csv?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&project=ebd2023&prefix=&forceOnObjectsSortingFiltering=false```
+5. create sub in https://console.cloud.google.com/cloudpubsub/topic/detail/test-topic?project=ebd2023
