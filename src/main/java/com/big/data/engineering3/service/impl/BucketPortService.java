@@ -1,7 +1,6 @@
 package com.big.data.engineering3.service.impl;
 
 import com.big.data.engineering3.adapters.BucketAdapter;
-import com.big.data.engineering3.ports.portin.BucketPortIn;
 import com.google.cloud.storage.Blob;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

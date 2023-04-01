@@ -1,12 +1,9 @@
 package com.big.data.engineering3.service.impl;
 
 import com.big.data.engineering3.adapters.messaging.publisher.PubSubAdapter;
-import com.big.data.engineering3.domain.Assessment;
-import com.big.data.engineering3.domain.StudentAssessment;
 import com.big.data.engineering3.service.PubSubService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.cloud.storage.Blob;
 import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
