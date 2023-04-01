@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-public class BucketPortService implements BucketPortIn {
+public class BucketPortService {
 
     BucketAdapter bucketAdapter;
 
@@ -22,12 +22,6 @@ public class BucketPortService implements BucketPortIn {
     public BucketPortService(BucketAdapter bucketAdapter) {
         this.bucketAdapter = bucketAdapter;
     }
-
-    @Override
-    public List<Blob> downloadBlobsFromRawBucket() {
-        return bucketAdapter.downloadBlobsFromRawBucket();
-    }
-
 
     public void writeToLandingBucket(List<Blob> blobList) {
         bucketAdapter.writeToLandingBucket(blobList);

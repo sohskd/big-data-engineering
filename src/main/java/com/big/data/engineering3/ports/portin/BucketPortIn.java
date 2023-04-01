@@ -7,4 +7,6 @@ import java.util.List;
 public interface BucketPortIn {
 
     List<Blob> downloadBlobsFromRawBucket();
+
+    Blob downloadBlob(String fileName);
 }

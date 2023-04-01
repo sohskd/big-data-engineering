@@ -20,7 +20,6 @@ public class PubSubAdapter implements PubSubPortOut {
 
     private PubsubOutboundGateway messagingGateway;
 
-
     @Autowired
     public PubSubAdapter(PubsubOutboundGateway messagingGateway) {
         this.messagingGateway = messagingGateway;

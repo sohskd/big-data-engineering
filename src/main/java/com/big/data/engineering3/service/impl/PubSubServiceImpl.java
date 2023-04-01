@@ -41,19 +41,7 @@ public class PubSubServiceImpl implements PubSubService {
     }
 
     @Override
-    public void publishData(List<Blob> blobList) {
-
-        blobList.forEach(b -> {
-            String fileLocation = b.getName();
-            try {
-                publishVLEData(fileLocation);
-            } catch (FileNotFoundException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    private void publishVLEData(String fileLocation) throws FileNotFoundException, ClassNotFoundException {
+    public void publishVLEData(String fileLocation) throws FileNotFoundException, ClassNotFoundException {
 
         Consumer<Object> sendToPubSub = data -> {
             try {
