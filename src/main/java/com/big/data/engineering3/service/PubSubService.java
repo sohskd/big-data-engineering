@@ -4,7 +4,7 @@ import com.google.cloud.storage.Blob;
 
 import java.util.List;
 
-public interface PubSubLoader {
+public interface PubSubService {
 
     void publishData(List<Blob> blobList);
 }

@@ -1,0 +1,30 @@
+{
+  "des_raw_csv/assessments.csv": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/assessments.csv",
+    "className": "com.big.data.engineering3.domain.Assessment"
+  },
+  "des_raw_csv/studentAssessment.csv": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/studentAssessment.csv",
+    "className": "com.big.data.engineering3.domain.StudentAssessment"
+  },
+  "des_raw_csv/courses.csv": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/courses.csv",
+    "className": "com.big.data.engineering3.domain.Course"
+  },
+  "des_raw_csv/studentInfo.csv": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/studentInfo.csv",
+    "className": "com.big.data.engineering3.domain.StudentInfo"
+  },
+  "des_raw_csv/studentRegistration.csv": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/studentRegistration.csv",
+    "className": "com.big.data.engineering3.domain.StudentRegistration"
+  },
+  "des_raw_csv/studentVle.csv": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/studentVle.csv",
+    "className": "com.big.data.engineering3.domain.StudentVle"
+  },
+  "des_raw_csv/vle.csv": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/vle.csv",
+    "className": "com.big.data.engineering3.domain.Vle"
+  }
+}
