@@ -1,7 +1,7 @@
-package com.big.data.engineering3.adapters;
+package com.big.data.engineering3.service.impl;
 
-import com.big.data.engineering3.service.GSBucketService;
-import com.big.data.engineering3.service.PubSubLoader;
+import com.big.data.engineering3.ports.portin.ProcessUseCase;
+import com.big.data.engineering3.service.PubSubService;
 import com.google.cloud.storage.Blob;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,22 +12,23 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class BucketProcessor {
+public class ProcessorService implements ProcessUseCase {
 
-    private GSBucketService gsBucketService;
-    private PubSubLoader pubSubLoader;
+    private BucketPortService gsBucketService;
+    private PubSubService pubSubService;
 
     @Autowired
-    public BucketProcessor(GSBucketService gsBucketService, PubSubLoader pubSubLoader) {
+    public ProcessorService(BucketPortService gsBucketService, PubSubService pubSubService) {
         this.gsBucketService = gsBucketService;
-        this.pubSubLoader = pubSubLoader;
+        this.pubSubService = pubSubService;
     }
 
     @Scheduled(fixedDelay = 10000)
-    public void cronRun() {
+    @Override
+    public void process() {
         log.info("Running cron");
         List<Blob> blobList = gsBucketService.downloadBlobsFromRawBucket();
-        pubSubLoader.publishData(blobList);
+        pubSubService.publishData(blobList);
         gsBucketService.writeToLandingBucket(blobList);
         log.info("Done cron");
     }
