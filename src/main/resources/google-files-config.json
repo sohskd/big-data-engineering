@@ -1,30 +1,30 @@
 {
-  "des_raw_csv/assessments.csv": {
-    "downloadedFileName": "data/downloaded/des_raw_csv/assessments.csv",
+  "1": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/",
     "className": "com.big.data.engineering3.domain.Assessment"
   },
-  "des_raw_csv/studentAssessment.csv": {
-    "downloadedFileName": "data/downloaded/des_raw_csv/studentAssessment.csv",
+  "2": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/",
     "className": "com.big.data.engineering3.domain.StudentAssessment"
   },
-  "des_raw_csv/courses.csv": {
-    "downloadedFileName": "data/downloaded/des_raw_csv/courses.csv",
+  "3": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/",
     "className": "com.big.data.engineering3.domain.Course"
   },
-  "des_raw_csv/studentInfo.csv": {
-    "downloadedFileName": "data/downloaded/des_raw_csv/studentInfo.csv",
+  "4": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/",
     "className": "com.big.data.engineering3.domain.StudentInfo"
   },
-  "des_raw_csv/studentRegistration.csv": {
-    "downloadedFileName": "data/downloaded/des_raw_csv/studentRegistration.csv",
+  "5": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/",
     "className": "com.big.data.engineering3.domain.StudentRegistration"
   },
-  "des_raw_csv/studentVle.csv": {
-    "downloadedFileName": "data/downloaded/des_raw_csv/studentVle.csv",
+  "6": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/",
     "className": "com.big.data.engineering3.domain.StudentVle"
   },
-  "des_raw_csv/vle.csv": {
-    "downloadedFileName": "data/downloaded/des_raw_csv/vle.csv",
+  "7": {
+    "downloadedFileName": "data/downloaded/des_raw_csv/",
     "className": "com.big.data.engineering3.domain.Vle"
   }
 }
