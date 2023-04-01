@@ -1,6 +1,6 @@
 package com.big.data.engineering3.service.impl;
 
-import com.big.data.engineering3.adapters.PubSubAdapter;
+import com.big.data.engineering3.adapters.messaging.publisher.PubSubAdapter;
 import com.big.data.engineering3.domain.Assessment;
 import com.big.data.engineering3.domain.StudentAssessment;
 import com.big.data.engineering3.service.PubSubService;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -27,18 +28,16 @@ public class PubSubServiceImpl implements PubSubService {
 
     private static final String TOPIC = "projects/ebd2023/topics/test-topic";
 
-    private static final String DES_RAW_CSV_ASSESSMENTS = "des_raw_csv/assessments.csv";
-    private static final String DOWNLOADED_DES_RAW_CSV_ASSESSMENTS = "data/downloaded/des_raw_csv/assessments.csv";
-    private static final String DES_RAW_CSV_STUDENT_ASSESSMENT = "des_raw_csv/studentAssessment.csv";
-    private static final String DOWNLOADED_DES_RAW_CSV_STUDENT_ASSESSMENT = "data/downloaded/des_raw_csv/studentAssessment.csv";
-
     private final PubSubAdapter pubSubAdapter;
     private final ObjectMapper objectMapper;
+    private final Map<String, Map<String, String>> googleCloudFileConfigs;
 
     @Autowired
-    public PubSubServiceImpl(PubSubAdapter pubSubAdapter, ObjectMapper objectMapper) {
+    public PubSubServiceImpl(PubSubAdapter pubSubAdapter, ObjectMapper objectMapper, Map<String,
+            Map<String, String>> googleCloudFileConfigs) {
         this.pubSubAdapter = pubSubAdapter;
         this.objectMapper = objectMapper;
+        this.googleCloudFileConfigs = googleCloudFileConfigs;
     }
 
     @Override
@@ -48,13 +47,13 @@ public class PubSubServiceImpl implements PubSubService {
             String fileLocation = b.getName();
             try {
                 publishVLEData(fileLocation);
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
-    private void publishVLEData(String fileLocation) throws FileNotFoundException {
+    private void publishVLEData(String fileLocation) throws FileNotFoundException, ClassNotFoundException {
 
         Consumer<Object> sendToPubSub = data -> {
             try {
@@ -66,13 +65,9 @@ public class PubSubServiceImpl implements PubSubService {
             }
         };
 
-        switch (fileLocation) {
-            case DES_RAW_CSV_ASSESSMENTS ->
-                    readFile(DOWNLOADED_DES_RAW_CSV_ASSESSMENTS, Assessment.class).forEach(sendToPubSub);
-            case DES_RAW_CSV_STUDENT_ASSESSMENT ->
-                    readFile(DOWNLOADED_DES_RAW_CSV_STUDENT_ASSESSMENT, StudentAssessment.class).forEach(sendToPubSub);
-            default -> log.info("Nothing");
-        }
+        Map<String, String> downloadedFileAndClassInfo = googleCloudFileConfigs.get(fileLocation);
+        readFile(downloadedFileAndClassInfo.get("downloadedFileName"),
+                Class.forName(downloadedFileAndClassInfo.get("className"))).forEach(sendToPubSub);
     }
 
     private <T> List<T> readFile(String data, Class<T> clazz) throws FileNotFoundException {

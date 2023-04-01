@@ -61,14 +61,15 @@ public class BucketAdapter implements BucketPortIn, BucketPortOut {
             // For a target object that does not yet exist, set the DoesNotExist precondition.
             // This will cause the request to fail if the object is created before the request runs.
             precondition = Storage.BlobWriteOption.doesNotExist();
+            storage.createFrom(blobInfo, Paths.get(filePath), precondition);
+            log.info(String.format("Successfully wrote to %s", filePath));
         } else {
             // If the destination already exists in your bucket, instead set a generation-match
             // precondition. This will cause the request to fail if the existing object's generation
             // changes before the request runs.
             precondition = Storage.BlobWriteOption.generationMatch();
+            log.info(String.format("Skipping uploading to %s", filePath));
         }
-        storage.createFrom(blobInfo, Paths.get(filePath), precondition);
-        log.info(String.format("Successfully wrote to %s", filePath));
     }
 
     private List<Blob> downloadBlobs(List<Blob> listOfBlobs) {
