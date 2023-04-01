@@ -1,10 +1,8 @@
 package com.big.data.engineering3.service;
 
-import com.google.cloud.storage.Blob;
-
-import java.util.List;
+import java.io.FileNotFoundException;
 
 public interface PubSubService {
 
-    void publishData(List<Blob> blobList);
+    void publishVLEData(String fileLocation) throws FileNotFoundException, ClassNotFoundException;
 }

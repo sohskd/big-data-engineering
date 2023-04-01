@@ -5,6 +5,8 @@ import com.big.data.engineering3.ports.portout.BucketPortOut;
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -32,10 +35,21 @@ public class BucketAdapter implements BucketPortIn, BucketPortOut {
     @Value("${gcp.bucket.raw.id}")
     private String gcpBucketRawId;
 
+    @Autowired
+    private Storage storage;
+
     @Override
     public List<Blob> downloadBlobsFromRawBucket() {
         List<Blob> listOfBlobs = getListOfBlobsStartWith(gcpProjectId, gcpBucketRawId, GCP_LOCATION);
         return downloadBlobs(listOfBlobs);
+    }
+
+    @Override
+    public Blob downloadBlob(String fileName) {
+        log.info(String.format("Downloading %s", fileName));
+        val blob = storage.get(gcpBucketRawId, fileName);
+        downloadBlobs(Collections.singletonList(blob));
+        return blob;
     }
 
     @Override
