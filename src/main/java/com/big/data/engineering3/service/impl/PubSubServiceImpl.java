@@ -65,9 +65,13 @@ public class PubSubServiceImpl implements PubSubService {
             }
         };
 
-        Map<String, String> downloadedFileAndClassInfo = googleCloudFileConfigs.get(fileLocation);
-        readFile(downloadedFileAndClassInfo.get("downloadedFileName"),
-                Class.forName(downloadedFileAndClassInfo.get("className"))).forEach(sendToPubSub);
+        // fileLocation = des_raw_csv/1_assessments.csv
+        // fileLocation = des_raw_csv/assessments_20230401.csv
+        String detectFile = fileLocation.substring(fileLocation.lastIndexOf('/') + 1);
+        Map<String, String> downloadedFileAndClassInfo = googleCloudFileConfigs.get(detectFile.substring(0, 1));
+        String fileDownloadedPath = downloadedFileAndClassInfo.get("downloadedFileName")
+                + fileLocation.substring(fileLocation.lastIndexOf('/') + 1);
+        readFile(fileDownloadedPath, Class.forName(downloadedFileAndClassInfo.get("className"))).forEach(sendToPubSub);
     }
 
     private <T> List<T> readFile(String data, Class<T> clazz) throws FileNotFoundException {
