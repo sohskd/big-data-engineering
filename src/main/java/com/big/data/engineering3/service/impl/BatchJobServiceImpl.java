@@ -1,5 +1,11 @@
 package com.big.data.engineering3.service.impl;
 
+import com.big.data.engineering3.constant.SQLConstants;
+import com.big.data.engineering3.dao.GoldDAO;
+import com.big.data.engineering3.dao.LandingDAO;
+import com.big.data.engineering3.dao.MockDAO;
+import com.big.data.engineering3.dao.SensitiveDAO;
+import com.big.data.engineering3.dao.WorkDAO;
 import com.big.data.engineering3.service.BatchJobService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +14,7 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,65 +38,20 @@ import java.util.stream.Collectors;
 public class BatchJobServiceImpl implements BatchJobService {
 	
 	@Autowired
-	@Qualifier("mockJdbcTemplate")
-	JdbcTemplate mockJdbcTemplate;
+	MockDAO mockDAO;
 	
 	@Autowired
-	@Qualifier("landingJdbcTemplate")
-	JdbcTemplate landingJdbcTemplate;
+	LandingDAO landingDAO;
 	
 	@Autowired
-	@Qualifier("goldJdbcTemplate")
-	JdbcTemplate goldJdbcTemplate;
+	GoldDAO goldDAO;
 	
 	@Autowired
-	@Qualifier("workJdbcTemplate")
-	JdbcTemplate workJdbcTemplate;
+	WorkDAO workDAO;
+	
 	@Autowired
-	@Qualifier("sensitiveJdbcTemplate")
-	JdbcTemplate sensitiveJdbcTemplate;
+	SensitiveDAO sensitiveDAO;
 	
-	
-    public JdbcTemplate getMockJdbcTemplate() {
-		return mockJdbcTemplate;
-	}
-
-	public void setMockJdbcTemplate(JdbcTemplate mockJdbcTemplate) {
-		this.mockJdbcTemplate = mockJdbcTemplate;
-	}
-
-	public JdbcTemplate getLandingJdbcTemplate() {
-		return landingJdbcTemplate;
-	}
-
-	public void setLandingJdbcTemplate(JdbcTemplate landingJdbcTemplate) {
-		this.landingJdbcTemplate = landingJdbcTemplate;
-	}
-
-	public JdbcTemplate getGoldJdbcTemplate() {
-		return goldJdbcTemplate;
-	}
-
-	public void setGoldJdbcTemplate(JdbcTemplate goldJdbcTemplate) {
-		this.goldJdbcTemplate = goldJdbcTemplate;
-	}
-
-	public JdbcTemplate getWorkJdbcTemplate() {
-		return workJdbcTemplate;
-	}
-
-	public void setWorkJdbcTemplate(JdbcTemplate workJdbcTemplate) {
-		this.workJdbcTemplate = workJdbcTemplate;
-	}
-
-	public JdbcTemplate getSensitiveJdbcTemplate() {
-		return sensitiveJdbcTemplate;
-	}
-
-	public void setSensitiveJdbcTemplate(JdbcTemplate sensitiveJdbcTemplate) {
-		this.sensitiveJdbcTemplate = sensitiveJdbcTemplate;
-	}
-
 	@Autowired
     public BatchJobServiceImpl() {
     }
@@ -99,54 +61,9 @@ public class BatchJobServiceImpl implements BatchJobService {
     public void process() {
         log.info("Running cron");
         try {
-        	log.info("Querying :: mockdb");
-        	String mockStmt = String.format("select * from courses order by code_module limit 3;");
-        	List<String> mockResult = this.mockJdbcTemplate.queryForList(mockStmt)
-        							.stream().map((m) -> m.values().toString()).collect(Collectors.toList());
-        	mockResult.forEach(x->log.info(x));
         	
-        	log.info("Querying :: landingDelta");
-        	final String QUERY_SELECT_DELTA = String.format("select table_name, time_executed from delta;");
-        	Map<String,Object> landingDelta = formatDeltaMap(this.landingJdbcTemplate.queryForList(QUERY_SELECT_DELTA));
-        	log.info("course:: delta :: "+landingDelta.get("courses"));
-        	
-        	log.info("Querying :: mockLandingCourses");
-        	///Mock to Landing
-        	final String QUERY_SELECT_COURSES_DELTA = String.format("select code_module,code_presentation,module_presentation_length from courses where changetimestamp > ?;");
-        	List<Map<String, Object>> mockLandingCourses = this.mockJdbcTemplate.queryForList(QUERY_SELECT_COURSES_DELTA,new Object[] {landingDelta.get("courses")});
-        	mockLandingCourses.forEach(m->log.info(m.values().toString()));
-
-        	BiConsumer<Map<String, Object>,PreparedStatement> queryMapping  = (row,ps) -> {
-                try {
-                	ps.setString(1, (String) row.get("code_module"));
-                    ps.setString(2, (String) row.get("code_presentation"));
-    				ps.setString(3, (String) row.get("module_presentation_length"));
-    			} catch (SQLException e) {
-    				throw new RuntimeException(e);
-    			}
-        	};
-        	final String QUERY_INSERT_COURSES_LANDING = String.format("INSERT INTO courses (code_module, code_presentation, module_presentation_length) VALUES (?, ?, ?);");
-        	batchInsert(QUERY_INSERT_COURSES_LANDING, mockLandingCourses, queryMapping);
-      	        	
-        	
-        	///Landing to Gold
-        	//format courses
-//        	UnaryOperator<Map<String, Object>> formatCourses = (row)->{
-//        		row.put("code_module",(String) row.get("code_module"));
-//        		row.put("code_presentation",(String) row.get("code_presentation"));
-//        		row.put("module_presentation_length",(int) row.get("module_presentation_length"));// todo format
-//        		return row;
-//        	};
-//        	String landingCoursesStmt = String.format("select * from courses order by code_module limit 3;");
-//
-//        	List<Map<String, Object>> landingGoldCourses = this.mockJdbcTemplate.queryForList(landingCoursesStmt,landingDelta.get("courses")).stream().map(formatCourses).collect(Collectors.toList());
-//        	
-//        	
-//        	log.info("Querying Test :: landingdb");
-//        	String landingStmt = String.format("select * from courses order by code_module limit 3;");
-//        	List<String> landingResult = this.landingJdbcTemplate.queryForList(landingStmt)
-//        							.stream().map((m) -> m.values().toString()).collect(Collectors.toList());
-//        	landingResult.forEach(x->log.info(x));
+        	processMockZoneToLandingZone();
+        	processLandingZoneToGoldZone();
         } catch(Exception e) {
         	throw new RuntimeException(e);
         }
@@ -154,46 +71,87 @@ public class BatchJobServiceImpl implements BatchJobService {
         log.info("Done cron");
     }
     
-    public int batchInsert(String query, List incominglist, BiConsumer queryMapping) {
-    	
-    	 try {
-         	final int batchSize = 500;
-         	for (int index = 0; index < incominglist.size(); index += batchSize) {
-                 final List<Map<String, Object>> batchList = incominglist.subList(index, Math.min(index + batchSize, incominglist.size()));
-                 int[] inserted = getLandingJdbcTemplate().batchUpdate(query,
-                     new BatchPreparedStatementSetter() {
-                         @Override
-                         public void setValues(PreparedStatement ps, int i)
-                                 throws SQLException {
-                         	Map<String, Object> row = batchList.get(i);
-                         	queryMapping.accept(row, ps);
-                         }
+    public Map<String,Timestamp> formatDeltaMap(List<Map<String, Object>> map) {
+		UnaryOperator<Map<String, Object>> formatDelta = (row) -> {
+			log.info("Mapping :: table_name :: " + row.get("table_name"));
+			row.put("table_name", (String) row.get("table_name"));
+			row.put("time_executed", (Timestamp) row.get("time_executed"));
+			return row;
+		};
+		log.info("formatDeltaMap :: size :: " + map.size());
+		return map.stream().map(formatDelta)
+				.collect(Collectors.toMap(m -> (String) m.get("table_name"), m -> (Timestamp) m.get("time_executed")));
+	}
+    @Transactional
+    public void processMockZoneToLandingZone() {
+        log.info("Running processMockZoneToLandingZone");
+        try {
+        	
+        	log.info("Querying :: Last Import from landingDB Delta");
+        	Map<String,Timestamp> landingDelta = formatDeltaMap(landingDAO.getDelta());
+        	//Assessments
+        	log.info("Querying :: Delta assessments from mockDB");
+        	
+        	List<Map<String, Object>> mockAssessmentsDelta = mockDAO.getAssessmentsByDelta(landingDelta.get(SQLConstants.TABLE_ASSESSMENTS));
+        	mockAssessmentsDelta.forEach(m->log.info(m.values().toString()));
+        	int insertedLandingAssessments = landingDAO.insertAssessments(mockAssessmentsDelta);
+        	log.info("insertedLandingAssessments :: " + insertedLandingAssessments);
+        	int updateLandingDeltaForAssessments = landingDAO.updateDelta(SQLConstants.TABLE_ASSESSMENTS);
+        	log.info("updateLandingDeltaForAssessments :: " + updateLandingDeltaForAssessments);// Note: delta time is delayed 
+        	
+        	
+        	//Courses
+        	log.info("Querying :: Delta courses from mockDB");
+        	
+        	List<Map<String, Object>> mockCoursesDelta = mockDAO.getCourseByDelta(landingDelta.get(SQLConstants.TABLE_COURSES));
+        	mockCoursesDelta.forEach(m->log.info(m.values().toString()));
+        	int insertedLandingCourses = landingDAO.insertCourses(mockCoursesDelta);
+        	log.info("insertedLandingCourses :: " + insertedLandingCourses);
+        	int updateLandingDeltaForCourses = landingDAO.updateDelta(SQLConstants.TABLE_COURSES);
+        	log.info("updateLandingDeltaForCourses :: " + updateLandingDeltaForCourses);// Note: delta time is delayed 
 
-                         @Override
-                         public int getBatchSize() {
-                             return batchList.size();
-                         }
-                     });
-                 log.info("Querying :: inserted :: " + inserted.length);
-
-             }
-         } catch(Exception e) {
-         	throw new RuntimeException(e);
-         }
-    	return 0;
+        	
+        } catch(Exception e) {
+        	throw new RuntimeException(e);
+        }
+        
+        log.info("Done processMockZoneToLandingZone");
     }
     
-    public Map<String,Object> formatDeltaMap(List<Map<String, Object>> map) {
-    	UnaryOperator<Map<String, Object>> formatDelta = (row)->{
-    		log.info("Mapping :: table_name :: " + row.get("table_name"));
-    		row.put("table_name",(String) row.get("table_name"));
-    		row.put("time_executed", (Timestamp) row.get("time_executed"));
-    		return row;
-    	};
-    	log.info("formatDeltaMap :: size :: " + map.size());
-    	return map.stream()
-    			.map(formatDelta)
-    			.collect(Collectors.toMap(m->(String)m.get("table_name")
-    					,m->(Timestamp)m.get("time_executed")));
+    @Transactional
+    public void processLandingZoneToGoldZone() {
+        log.info("Running processLandingZoneToGoldZone");
+        try {
+        	
+        	log.info("Querying :: Last Import from goldDB Delta");
+        	Map<String,Timestamp> goldDelta = formatDeltaMap(goldDAO.getDelta());
+        	//Assessments
+        	log.info("Querying :: Delta assessments from landingDB");
+        	
+        	List<Map<String, Object>> landingAssessmentsDelta = landingDAO.getAssessmentsByDelta(goldDelta.get(SQLConstants.TABLE_ASSESSMENTS));
+        	landingAssessmentsDelta.forEach(m->log.info(m.values().toString()));
+        	int insertedGoldAssessments = goldDAO.insertAssessments(landingAssessmentsDelta);
+        	log.info("insertedGoldAssessments :: " + insertedGoldAssessments);
+        	int updateGoldDeltaForAssessments = goldDAO.updateDelta(SQLConstants.TABLE_ASSESSMENTS);
+        	log.info("updateGoldDeltaForAssessments :: " + updateGoldDeltaForAssessments);// Note: delta time is delayed 
+        	
+        	
+        	//Courses
+        	log.info("Querying :: Delta courses from landingDB");
+        	
+        	List<Map<String, Object>> landingCoursesDelta = landingDAO.getCourseByDelta(goldDelta.get(SQLConstants.TABLE_COURSES));
+        	landingCoursesDelta.forEach(m->log.info(m.values().toString()));
+        	int insertedGoldCourses = goldDAO.insertCourses(landingCoursesDelta);
+        	log.info("insertedGoldCourses :: " + insertedGoldCourses);
+        	int updateGoldDeltaForCourses = goldDAO.updateDelta(SQLConstants.TABLE_COURSES);
+        	log.info("updateGoldDeltaForCourses :: " + updateGoldDeltaForCourses);// Note: delta time is delayed 
+
+        	
+        } catch(Exception e) {
+        	throw new RuntimeException(e);
+        }
+        
+        log.info("Done processLandingZoneToGoldZone");
     }
+
 }
