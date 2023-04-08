@@ -39,3 +39,6 @@ build/
 /data/downloaded
 
 src/main/resources/gcp-account-file.json
+/bin/
+.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/maven-wrapper.jar
