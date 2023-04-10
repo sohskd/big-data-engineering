@@ -8,5 +8,7 @@ public interface BucketPortIn {
 
     List<Blob> downloadBlobsFromRawBucket();
 
-    Blob downloadBlob(String fileName);
+    Blob downloadBlobFromRawZone(String fileName);
+
+    Blob downloadBlobFromLandingZone(String fileName);
 }
