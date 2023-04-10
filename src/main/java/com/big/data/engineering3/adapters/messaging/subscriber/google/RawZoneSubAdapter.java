@@ -15,27 +15,27 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Service;
 
-import static com.big.data.engineering3.constant.GoogleCloudConstants.SUBSCRIPTION_NAME;
+import static com.big.data.engineering3.constant.GoogleCloudConstants.RAW_SUBSCRIPTION_NAME;
 
 @Slf4j
 @Service
-public class AssessmentSubAdapter implements PubSubPortIn {
+public class RawZoneSubAdapter implements PubSubPortIn {
 
-    private static final String INPUT_CHANNEL = "assessmentSpringInputChannel";
+    private static final String INPUT_CHANNEL = "rawZoneSpringInputChannel";
 
     private final ApplicationEventService applicationEventService;
 
     @Autowired
-    public AssessmentSubAdapter(ApplicationEventService applicationEventService) {
+    public RawZoneSubAdapter(ApplicationEventService applicationEventService) {
         this.applicationEventService = applicationEventService;
     }
 
     @Bean
     @ServiceActivator(inputChannel = INPUT_CHANNEL)
-    public MessageHandler assessmentMessageReceiver() {
+    public MessageHandler rawZoneReceiver() {
         return message -> {
             String payload = new String((byte[]) message.getPayload());
-            log.info("[Assessment] Message arrived! Payload: " + payload);
+            log.info("[Raw Zone Changed] Message arrived! Payload: " + payload);
             this.applicationEventService.publish(payload, message);
         };
     }
@@ -46,11 +46,11 @@ public class AssessmentSubAdapter implements PubSubPortIn {
      */
 
     @Bean
-    public PubSubInboundChannelAdapter assessmentMessageChannelAdapter(
+    public PubSubInboundChannelAdapter rawZoneChannelAdapter(
             @Qualifier(INPUT_CHANNEL) MessageChannel inputChannel,
             PubSubTemplate pubSubTemplate) {
         PubSubInboundChannelAdapter adapter =
-                new PubSubInboundChannelAdapter(pubSubTemplate, SUBSCRIPTION_NAME);
+                new PubSubInboundChannelAdapter(pubSubTemplate, RAW_SUBSCRIPTION_NAME);
         adapter.setOutputChannel(inputChannel);
         adapter.setAckMode(AckMode.MANUAL);
 
@@ -58,7 +58,7 @@ public class AssessmentSubAdapter implements PubSubPortIn {
     }
 
     @Bean
-    public MessageChannel assessmentSpringInputChannel() {
+    public MessageChannel rawZoneSpringInputChannel() {
         return new DirectChannel();
     }
 }

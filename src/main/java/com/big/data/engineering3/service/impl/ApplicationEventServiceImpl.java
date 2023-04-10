@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.spring.pubsub.support.BasicAcknowledgeablePubsubMessage;
 import com.google.cloud.spring.pubsub.support.GcpPubSubHeaders;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.Message;
@@ -32,8 +33,10 @@ public class ApplicationEventServiceImpl implements ApplicationEventService {
         assert originalMessage != null;
         originalMessage.ack();
         try {
+            val m = objectMapper.readValue(payload, Map.class);
             applicationEventPublisher.publishEvent(new TriggerEvent(this,
-                    (String) objectMapper.readValue(payload, Map.class).get("name")));
+                    (String) m.get("name"), (String) m.get("bucket")
+            ));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

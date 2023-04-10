@@ -16,6 +16,6 @@ public class GoogleCloudConstants {
      * Subscriptions
      */
 
-    public static final String SUBSCRIPTION_NAME = "projects/ebd2023/subscriptions/eventarc-asia-southeast1-raw-cloud-trigger-463716-sub-968";
-
+    public static final String RAW_SUBSCRIPTION_NAME = "projects/ebd2023/subscriptions/eventarc-asia-southeast1-raw-cloud-trigger-463716-sub-968";
+    public static final String LANDING_SUBSCRIPTION_NAME = "projects/ebd2023/subscriptions/eventarc-asia-southeast1-landing-cloud-trigger-718496-sub-879";
 }

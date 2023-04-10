@@ -15,27 +15,27 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Service;
 
-import static com.big.data.engineering3.constant.GoogleCloudConstants.SUBSCRIPTION_NAME;
+import static com.big.data.engineering3.constant.GoogleCloudConstants.LANDING_SUBSCRIPTION_NAME;
 
 @Slf4j
 @Service
-public class StudentAssessmentSubAdapter implements PubSubPortIn {
+public class LandingZoneSubAdapter implements PubSubPortIn {
 
-    private static final String INPUT_CHANNEL = "studentAssessmentSpringInputChannel";
+    private static final String INPUT_CHANNEL = "landingZoneSpringInputChannel";
 
     private final ApplicationEventService applicationEventService;
 
     @Autowired
-    public StudentAssessmentSubAdapter(ApplicationEventService applicationEventService) {
+    public LandingZoneSubAdapter(ApplicationEventService applicationEventService) {
         this.applicationEventService = applicationEventService;
     }
 
     @Bean
     @ServiceActivator(inputChannel = INPUT_CHANNEL)
-    public MessageHandler studentAssessmentMessageReceiver() {
+    public MessageHandler landingZoneReceiver() {
         return message -> {
             String payload = new String((byte[]) message.getPayload());
-            log.info("[Student Assessment] Message arrived! Payload: " + new String((byte[]) message.getPayload()));
+            log.info("[Landing Zone Changed] Message arrived! Payload: " + payload);
             this.applicationEventService.publish(payload, message);
         };
     }
@@ -46,11 +46,11 @@ public class StudentAssessmentSubAdapter implements PubSubPortIn {
      */
 
     @Bean
-    public PubSubInboundChannelAdapter studentAssessmentMessageChannelAdapter(
+    public PubSubInboundChannelAdapter landingZoneChannelAdapter(
             @Qualifier(INPUT_CHANNEL) MessageChannel inputChannel,
             PubSubTemplate pubSubTemplate) {
         PubSubInboundChannelAdapter adapter =
-                new PubSubInboundChannelAdapter(pubSubTemplate, SUBSCRIPTION_NAME);
+                new PubSubInboundChannelAdapter(pubSubTemplate, LANDING_SUBSCRIPTION_NAME);
         adapter.setOutputChannel(inputChannel);
         adapter.setAckMode(AckMode.MANUAL);
 
@@ -58,7 +58,7 @@ public class StudentAssessmentSubAdapter implements PubSubPortIn {
     }
 
     @Bean
-    public MessageChannel studentAssessmentSpringInputChannel() {
+    public MessageChannel landingZoneSpringInputChannel() {
         return new DirectChannel();
     }
 }

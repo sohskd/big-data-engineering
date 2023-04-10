@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.big.data.engineering3.constant.FileConstants.DOWNLOADED_PATH;
-import static com.big.data.engineering3.constant.FileConstants.GCP_LOCATION;
+import static com.big.data.engineering3.constant.FileConstants.*;
+import static com.big.data.engineering3.utils.FileUtils.getFileName;
 
 @Slf4j
 @Service
@@ -41,14 +41,22 @@ public class BucketAdapter implements BucketPortIn, BucketPortOut {
     @Override
     public List<Blob> downloadBlobsFromRawBucket() {
         List<Blob> listOfBlobs = getListOfBlobsStartWith(gcpProjectId, gcpBucketRawId, GCP_LOCATION);
-        return downloadBlobs(listOfBlobs);
+        return downloadBlobs(listOfBlobs, DOWNLOADED_PATH);
     }
 
     @Override
-    public Blob downloadBlob(String fileName) {
-        log.info(String.format("Downloading %s", fileName));
+    public Blob downloadBlobFromRawZone(String fileName) {
+        log.info(String.format("Downloading %s from raw zone", fileName));
         val blob = storage.get(gcpBucketRawId, fileName);
-        downloadBlobs(Collections.singletonList(blob));
+        downloadBlobs(Collections.singletonList(blob), DOWNLOADED_PATH);
+        return blob;
+    }
+
+    @Override
+    public Blob downloadBlobFromLandingZone(String fileName) {
+        log.info(String.format("Downloading %s from landing zone", fileName));
+        val blob = storage.get(gcpBucketLandingId, fileName);
+        downloadBlobsToLanding(Collections.singletonList(blob), DOWNLOADED_PATH_LANDING);
         return blob;
     }
 
@@ -86,13 +94,23 @@ public class BucketAdapter implements BucketPortIn, BucketPortOut {
         }
     }
 
-    private List<Blob> downloadBlobs(List<Blob> listOfBlobs) {
+    private List<Blob> downloadBlobsToLanding(List<Blob> listOfBlobs, String location) {
         List<Blob> blobsToDownload = listOfBlobs.stream().filter(b -> {
-            Path p = Paths.get(String.format(DOWNLOADED_PATH, b.getName()));
+            Path p = Paths.get(String.format(location, b.getName()));
             return !Files.exists(p);
         }).toList();
 
-        blobsToDownload.forEach(b -> b.downloadTo(Paths.get(String.format(DOWNLOADED_PATH, b.getName()))));
+        blobsToDownload.forEach(b -> b.downloadTo(Paths.get(String.format(location, getFileName(b.getName())))));
+        return blobsToDownload;
+    }
+
+    private List<Blob> downloadBlobs(List<Blob> listOfBlobs, String location) {
+        List<Blob> blobsToDownload = listOfBlobs.stream().filter(b -> {
+            Path p = Paths.get(String.format(location, b.getName()));
+            return !Files.exists(p);
+        }).toList();
+
+        blobsToDownload.forEach(b -> b.downloadTo(Paths.get(String.format(location, b.getName()))));
         return blobsToDownload;
     }
 
