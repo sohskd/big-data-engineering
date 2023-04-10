@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 public interface BaseDAO {
-    public static int batchInsert(JdbcTemplate jdbcTemplate,String query, List incominglist, BiConsumer queryMapping) {
+    public static int batchInsertOrUpdate(JdbcTemplate jdbcTemplate,String query, List incominglist, BiConsumer queryMapping) {
     int total = 0;	
    	 try {
         	final int batchSize = 100;
