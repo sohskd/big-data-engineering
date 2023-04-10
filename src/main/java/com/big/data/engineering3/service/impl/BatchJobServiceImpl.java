@@ -92,10 +92,16 @@ public class BatchJobServiceImpl implements BatchJobService {
         	//Assessments
         	log.info("Querying :: Delta assessments from mockDB");
         	
-        	List<Map<String, Object>> mockAssessmentsDelta = mockDAO.getAssessmentsByDelta(landingDelta.get(SQLConstants.TABLE_ASSESSMENTS));
-        	mockAssessmentsDelta.forEach(m->log.info(m.values().toString()));
-        	int insertedLandingAssessments = landingDAO.insertAssessments(mockAssessmentsDelta);
+        	List<Map<String, Object>> mockAssessmentsDeltaInsert = mockDAO.getAssessmentsByINSERTTIMESTAMP(landingDelta.get(SQLConstants.TABLE_ASSESSMENTS));
+        	mockAssessmentsDeltaInsert.forEach(m->log.info(m.values().toString()));
+        	int insertedLandingAssessments = landingDAO.insertAssessments(mockAssessmentsDeltaInsert);
         	log.info("insertedLandingAssessments :: " + insertedLandingAssessments);
+        	
+        	List<Map<String, Object>> mockAssessmentsDeltaUpdate = mockDAO.getAssessmentsByCHANGETIMESTAMP(landingDelta.get(SQLConstants.TABLE_ASSESSMENTS));
+        	mockAssessmentsDeltaUpdate.forEach(m->log.info(m.values().toString()));
+        	int updatedLandingAssessments = landingDAO.updateAssessments(mockAssessmentsDeltaUpdate);
+        	log.info("updatedLandingAssessments :: " + updatedLandingAssessments);
+        	
         	int updateLandingDeltaForAssessments = landingDAO.updateDelta(SQLConstants.TABLE_ASSESSMENTS);
         	log.info("updateLandingDeltaForAssessments :: " + updateLandingDeltaForAssessments);// Note: delta time is delayed 
         	
@@ -103,10 +109,16 @@ public class BatchJobServiceImpl implements BatchJobService {
         	//Courses
         	log.info("Querying :: Delta courses from mockDB");
         	
-        	List<Map<String, Object>> mockCoursesDelta = mockDAO.getCourseByDelta(landingDelta.get(SQLConstants.TABLE_COURSES));
-        	mockCoursesDelta.forEach(m->log.info(m.values().toString()));
-        	int insertedLandingCourses = landingDAO.insertCourses(mockCoursesDelta);
+        	List<Map<String, Object>> mockCoursesDeltaInsert = mockDAO.getCourseByINSERTTIMESTAMP(landingDelta.get(SQLConstants.TABLE_COURSES));
+        	mockCoursesDeltaInsert.forEach(m->log.info(m.values().toString()));
+        	int insertedLandingCourses = landingDAO.insertCourses(mockCoursesDeltaInsert);
         	log.info("insertedLandingCourses :: " + insertedLandingCourses);
+        	
+        	List<Map<String, Object>> mockCoursesDeltaUpdate = mockDAO.getCourseByCHANGETIMESTAMP(landingDelta.get(SQLConstants.TABLE_COURSES));
+        	mockCoursesDeltaUpdate.forEach(m->log.info(m.values().toString()));
+        	int updatedLandingCourses = landingDAO.updateCourses(mockCoursesDeltaUpdate);
+        	log.info("updatedLandingCourses :: " + updatedLandingCourses);
+        	
         	int updateLandingDeltaForCourses = landingDAO.updateDelta(SQLConstants.TABLE_COURSES);
         	log.info("updateLandingDeltaForCourses :: " + updateLandingDeltaForCourses);// Note: delta time is delayed 
 
@@ -128,22 +140,38 @@ public class BatchJobServiceImpl implements BatchJobService {
         	//Assessments
         	log.info("Querying :: Delta assessments from landingDB");
         	
-        	List<Map<String, Object>> landingAssessmentsDelta = landingDAO.getAssessmentsByDelta(goldDelta.get(SQLConstants.TABLE_ASSESSMENTS));
-        	landingAssessmentsDelta.forEach(m->log.info(m.values().toString()));
-        	int insertedGoldAssessments = goldDAO.insertAssessments(landingAssessmentsDelta);
+        	List<Map<String, Object>> landingAssessmentsDeltaInsert = landingDAO.getAssessmentsByINSERTTIMESTAMP(goldDelta.get(SQLConstants.TABLE_ASSESSMENTS));
+        	landingAssessmentsDeltaInsert.forEach(m->log.info(m.values().toString()));
+        	int insertedGoldAssessments = goldDAO.insertAssessments(landingAssessmentsDeltaInsert);
         	log.info("insertedGoldAssessments :: " + insertedGoldAssessments);
         	int updateGoldDeltaForAssessments = goldDAO.updateDelta(SQLConstants.TABLE_ASSESSMENTS);
+        	
+        	List<Map<String, Object>> landingAssessmentsDeltaUpdate = landingDAO.getAssessmentsByCHANGETIMESTAMP(goldDelta.get(SQLConstants.TABLE_ASSESSMENTS));
+        	landingAssessmentsDeltaUpdate.forEach(m->log.info(m.values().toString()));
+        	int updatedGoldAssessments = goldDAO.updateAssessments(landingAssessmentsDeltaUpdate);
+        	log.info("updatedGoldAssessments :: " + updatedGoldAssessments);
+        	
         	log.info("updateGoldDeltaForAssessments :: " + updateGoldDeltaForAssessments);// Note: delta time is delayed 
         	
         	
         	//Courses
         	log.info("Querying :: Delta courses from landingDB");
         	
-        	List<Map<String, Object>> landingCoursesDelta = landingDAO.getCourseByDelta(goldDelta.get(SQLConstants.TABLE_COURSES));
-        	landingCoursesDelta.forEach(m->log.info(m.values().toString()));
-        	int insertedGoldCourses = goldDAO.insertCourses(landingCoursesDelta);
+        	List<Map<String, Object>> landingCoursesDeltaInsert = landingDAO.getCourseByINSERTTIMESTAMP(goldDelta.get(SQLConstants.TABLE_COURSES));
+        	landingCoursesDeltaInsert.forEach(m->log.info(m.values().toString()));
+        	int insertedGoldCourses = goldDAO.insertCourses(landingCoursesDeltaInsert);
         	log.info("insertedGoldCourses :: " + insertedGoldCourses);
+        	
+          	List<Map<String, Object>> landingCoursesDeltaUpdate = landingDAO.getCourseByCHANGETIMESTAMP(goldDelta.get(SQLConstants.TABLE_COURSES));
+        	landingCoursesDeltaUpdate.forEach(m->log.info(m.values().toString()));
+        	int updatedGoldCourses = goldDAO.updateCourses(landingCoursesDeltaUpdate);
+        	log.info("updatedGoldCourses :: " + updatedGoldCourses);
+        	
         	int updateGoldDeltaForCourses = goldDAO.updateDelta(SQLConstants.TABLE_COURSES);
+        	
+  
+        	
+        	
         	log.info("updateGoldDeltaForCourses :: " + updateGoldDeltaForCourses);// Note: delta time is delayed 
 
         	

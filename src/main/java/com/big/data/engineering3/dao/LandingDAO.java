@@ -12,11 +12,21 @@ public interface LandingDAO {
 
 	public int updateDelta(String tableName);
 
-	public int insertAssessments(List<Map<String, Object>> mockAssessmentsDelta) throws Exception;
+
+
+	public List<Map<String, Object>> getCourseByINSERTTIMESTAMP(Timestamp delta) throws Exception;
+
+	public List<Map<String, Object>> getAssessmentsByINSERTTIMESTAMP(Timestamp delta) throws Exception;
+
+	public List<Map<String, Object>> getAssessmentsByCHANGETIMESTAMP(Timestamp delta) throws Exception;
+
+	public List<Map<String, Object>> getCourseByCHANGETIMESTAMP(Timestamp delta) throws Exception;
+
+	public int insertAssessments(List<Map<String, Object>> mockAssessmentsDeltaInsert) throws Exception;
 	
 	public int insertCourses(List<Map<String, Object>> mockCoursesDelta) throws Exception;
+	
+	public int updateAssessments(List<Map<String, Object>> mockAssessmentsDeltaUpdate) throws Exception;
 
-	public List<Map<String, Object>> getCourseByDelta(Timestamp delta) throws Exception;
-
-	public List<Map<String, Object>> getAssessmentsByDelta(Timestamp delta) throws Exception;
+	public int updateCourses(List<Map<String, Object>> mockCoursesDeltaUpdate) throws Exception;
 }
