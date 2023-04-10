@@ -43,23 +43,10 @@ public class LandingDAOImpl implements LandingDAO {
 		log.info("LandingDAOImpl :: updateDelta");
 		return getLandingJdbcTemplate().update(SQLConstants.QUERY_UPDATE_DELTA, tableName);
 	}
-	@Override
-	public int insertCourses(List<Map<String, Object>> mockCoursesDelta) throws Exception {
-		log.info("LandingDAOImpl :: insertCourses");
-    	BiConsumer<Map<String, Object>,PreparedStatement> dataMapping  = (row,ps) -> {
-            try {
-            	ps.setString(1, (String) row.get("code_module"));
-                ps.setString(2, (String) row.get("code_presentation"));
-				ps.setString(3, (String) row.get("module_presentation_length"));
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-    	};
-		return BaseDAO.batchInsert(getLandingJdbcTemplate(), SQLConstants.QUERY_INSERT_COURSES, mockCoursesDelta, dataMapping);
-	}
+
 
 	@Override
-	public int insertAssessments(List<Map<String, Object>> mockAssessmentsDelta) throws Exception {
+	public int insertAssessments(List<Map<String, Object>> mockAssessmentsDeltaInsert) throws Exception {
 		log.info("LandingDAOImpl :: insertAssessments");
     	BiConsumer<Map<String, Object>,PreparedStatement> dataMapping  = (row,ps) -> {
             try {
@@ -73,18 +60,77 @@ public class LandingDAOImpl implements LandingDAO {
 				throw new RuntimeException(e);
 			}
     	};
-		return BaseDAO.batchInsert(getLandingJdbcTemplate(), SQLConstants.QUERY_INSERT_ASSESSMENTS, mockAssessmentsDelta, dataMapping);
-	}
-
-	public List<Map<String, Object>> getCourseByDelta(Timestamp delta) throws Exception {
-		log.info("LandingDAOImpl :: getCourseByDelta");
-		return getLandingJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_COURSES_BY_DELTA,new Object[] {delta});
+		return BaseDAO.batchInsertOrUpdate(getLandingJdbcTemplate(), SQLConstants.QUERY_INSERT_ASSESSMENTS, mockAssessmentsDeltaInsert, dataMapping);
 	}
 
 	@Override
-	public List<Map<String, Object>> getAssessmentsByDelta(Timestamp delta) throws Exception {
-		log.info("LandingDAOImpl :: getAssessmentsByDelta");
-		return getLandingJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_ASSESSMENTS_BY_DELTA,new Object[] {delta});
+	public int updateAssessments(List<Map<String, Object>> mockAssessmentsDeltaUpdate) throws Exception {
+		log.info("LandingDAOImpl :: updateAssessments");
+    	BiConsumer<Map<String, Object>,PreparedStatement> dataMapping  = (row,ps) -> {
+            try {
+            	ps.setString(1, (String) row.get("code_module"));
+                ps.setString(2, (String) row.get("code_presentation"));
+				ps.setString(3, (String) row.get("assessment_type"));
+				ps.setString(4, (String) row.get("date"));
+                ps.setString(5, (String) row.get("weight"));
+				ps.setString(6, (String) row.get("id_assessment"));
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+    	};
+		return BaseDAO.batchInsertOrUpdate(getLandingJdbcTemplate(), SQLConstants.QUERY_UPDATE_ASSESSMENTS, mockAssessmentsDeltaUpdate, dataMapping);
+	}
+	
+	@Override
+	public int insertCourses(List<Map<String, Object>> mockCoursesDeltaInsert) throws Exception {
+		log.info("LandingDAOImpl :: insertCourses");
+    	BiConsumer<Map<String, Object>,PreparedStatement> dataMapping  = (row,ps) -> {
+            try {
+            	ps.setString(1, (String) row.get("code_module"));
+                ps.setString(2, (String) row.get("code_presentation"));
+				ps.setString(3, (String) row.get("module_presentation_length"));
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+    	};
+		return BaseDAO.batchInsertOrUpdate(getLandingJdbcTemplate(), SQLConstants.QUERY_INSERT_COURSES, mockCoursesDeltaInsert, dataMapping);
+	}
+	@Override
+	public int updateCourses(List<Map<String, Object>> mockCoursesDeltaUpdate) throws Exception {
+		log.info("LandingDAOImpl :: updateCourses");
+    	BiConsumer<Map<String, Object>,PreparedStatement> dataMapping  = (row,ps) -> {
+            try {
+				ps.setString(1, (String) row.get("module_presentation_length"));
+				ps.setString(2, (String) row.get("code_module"));
+            	ps.setString(3, (String) row.get("code_presentation"));
+            } catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+    	};
+		return BaseDAO.batchInsertOrUpdate(getLandingJdbcTemplate(), SQLConstants.QUERY_UPDATE_COURSES, mockCoursesDeltaUpdate, dataMapping);
+	}
+
+	@Override
+	public List<Map<String, Object>> getAssessmentsByINSERTTIMESTAMP(Timestamp delta) throws Exception {
+		log.info("LandingDAOImpl :: getAssessmentsByINSERTTIMESTAMP");
+		return getLandingJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_ASSESSMENTS_BY_INSERTTIMESTAMP,new Object[] {delta});
+	}
+
+	@Override
+	public List<Map<String, Object>> getAssessmentsByCHANGETIMESTAMP(Timestamp delta) throws Exception {
+		log.info("LandingDAOImpl :: getAssessmentsByCHANGETIMESTAMP");
+		return getLandingJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_ASSESSMENTS_BY_CHANGETIMESTAMP,new Object[] {delta});
+	}
+	
+	public List<Map<String, Object>> getCourseByINSERTTIMESTAMP(Timestamp delta) throws Exception {
+		log.info("LandingDAOImpl :: getCourseByINSERTTIMESTAMP");
+		return getLandingJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_COURSES_BY_INSERTTIMESTAMP,new Object[] {delta});
+	}
+	
+	@Override
+	public List<Map<String, Object>> getCourseByCHANGETIMESTAMP(Timestamp delta) throws Exception {
+		log.info("LandingDAOImpl :: getCourseByCHANGETIMESTAMP");
+		return getLandingJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_COURSES_BY_CHANGETIMESTAMP,new Object[] {delta});
 	}
 	
 }

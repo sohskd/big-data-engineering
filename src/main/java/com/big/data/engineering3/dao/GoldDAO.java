@@ -9,8 +9,13 @@ public interface GoldDAO {
 
 	public int updateDelta(String tableName);
 
-	public int insertAssessments(List<Map<String, Object>> mockAssessmentsDelta) throws Exception;
+	public int insertAssessments(List<Map<String, Object>> landingAssessmentsDeltaInsert) throws Exception;
 	
-	public int insertCourses(List<Map<String, Object>> mockCoursesDelta) throws Exception;
+	public int insertCourses(List<Map<String, Object>> landingCoursesDelta) throws Exception;
+	
+	public int updateAssessments(List<Map<String, Object>> landingAssessmentsDeltaUpdate) throws Exception;
+
+	public int updateCourses(List<Map<String, Object>> landingCoursesDeltaUpdate) throws Exception;
+
 
 }

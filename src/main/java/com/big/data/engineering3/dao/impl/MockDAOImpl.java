@@ -30,14 +30,28 @@ public class MockDAOImpl implements MockDAO {
 		this.mockJdbcTemplate = mockJdbcTemplate;
 	}
 	
-	public List<Map<String, Object>> getCourseByDelta(Timestamp delta) throws Exception {
-		log.info("MockDAOImpl :: getCourseByDelta");
-		return getMockJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_COURSES_BY_DELTA,new Object[] {delta});
+	
+
+	@Override
+	public List<Map<String, Object>> getAssessmentsByINSERTTIMESTAMP(Timestamp delta) throws Exception {
+		log.info("MockDAOImpl :: getAssessmentsByINSERTTIMESTAMP");
+		return getMockJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_ASSESSMENTS_BY_INSERTTIMESTAMP,new Object[] {delta});
 	}
 
 	@Override
-	public List<Map<String, Object>> getAssessmentsByDelta(Timestamp delta) throws Exception {
-		log.info("MockDAOImpl :: getAssessmentsByDelta");
-		return getMockJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_ASSESSMENTS_BY_DELTA,new Object[] {delta});
+	public List<Map<String, Object>> getAssessmentsByCHANGETIMESTAMP(Timestamp delta) throws Exception {
+		log.info("MockDAOImpl :: getAssessmentsByCHANGETIMESTAMP");
+		return getMockJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_ASSESSMENTS_BY_CHANGETIMESTAMP,new Object[] {delta});
+	}
+	
+	public List<Map<String, Object>> getCourseByINSERTTIMESTAMP(Timestamp delta) throws Exception {
+		log.info("MockDAOImpl :: getCourseByINSERTTIMESTAMP");
+		return getMockJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_COURSES_BY_INSERTTIMESTAMP,new Object[] {delta});
+	}
+	
+	@Override
+	public List<Map<String, Object>> getCourseByCHANGETIMESTAMP(Timestamp delta) throws Exception {
+		log.info("MockDAOImpl :: getCourseByCHANGETIMESTAMP");
+		return getMockJdbcTemplate().queryForList(SQLConstants.QUERY_SELECT_COURSES_BY_CHANGETIMESTAMP,new Object[] {delta});
 	}
 }
