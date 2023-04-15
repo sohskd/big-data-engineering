@@ -2,9 +2,29 @@ package com.big.data.engineering3.constant;
 
 public class SQLConstants {
 	
+	//Tables
 	public final static String TABLE_DELTA = "delta";
 	public final static String TABLE_ASSESSMENTS = "assessments";
 	public final static String TABLE_COURSES = "courses";
+	public final static String TABLE_STUDENT_ASSESSMENT = "studentAssessment";
+	public final static String TABLE_STUDENT_INFO = "studentInfo";
+	public final static String TABLE_STUDENT_REGISTRATION = "studentRegistration";
+	public final static String TABLE_STUDENT_VLE = "studentVle";
+	public final static String TABLE_VLE = "vle";
+	
+	//Landing Paths
+	public final static String LANDING_PATH_ROOT = "../big-data-engineering/data/downloaded/landing_csv";
+	public final static String LANDING_PATH_STUDENT_ASSESSMENT = LANDING_PATH_ROOT+"/"+"2_*";
+	public final static String LANDING_PATH_STUDENT_INFO = LANDING_PATH_ROOT+"/"+"4_*";
+	public final static String LANDING_PATH_STUDENT_REGISTRATION = LANDING_PATH_ROOT+"/"+"5_*";
+	public final static String LANDING_PATH_STUDENT_VLE = LANDING_PATH_ROOT+"/"+"6_*";;
+	public final static String LANDING_PATH_VLE = LANDING_PATH_ROOT+"/"+"7_*";
+	
+	public final static String CODE_STUDENT_ASSESSMENT = "2_";
+	public final static String CODE_STUDENT_INFO = "4_";
+	public final static String CODE_STUDENT_REGISTRATION = "5_";
+	public final static String CODE_STUDENT_VLE = "6_";;
+	public final static String CODE_VLE = "7_";
 	
 	public final static String QUERY_SELECT_DELTA = "SELECT table_name, time_executed FROM delta;";
 	public final static String QUERY_UPDATE_DELTA = "UPDATE delta SET time_executed = now() WHERE table_name = ?;";
