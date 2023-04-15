@@ -7,6 +7,8 @@ import com.big.data.engineering3.dao.MockDAO;
 import com.big.data.engineering3.dao.SensitiveDAO;
 import com.big.data.engineering3.dao.WorkDAO;
 import com.big.data.engineering3.service.BatchJobService;
+import com.big.data.engineering3.service.SparkJobService;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,6 +26,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +55,9 @@ public class BatchJobServiceImpl implements BatchJobService {
 	
 	@Autowired
 	SensitiveDAO sensitiveDAO;
+    
+	@Autowired
+    private SparkJobService sparkJobService;
 	
 	@Autowired
     public BatchJobServiceImpl() {
@@ -64,6 +71,13 @@ public class BatchJobServiceImpl implements BatchJobService {
         	
         	processMockZoneToLandingZone();
         	processLandingZoneToGoldZone();
+        	List<String> errorList = new ArrayList<String>();
+        	sparkJobService.ingest_studentAssessment(errorList);
+        	sparkJobService.ingest_studentInfo(errorList);
+        	sparkJobService.ingest_studentRegistration(errorList);
+        	sparkJobService.ingest_studentVle(errorList);
+        	sparkJobService.ingest_vle(errorList);
+        	log.info(errorList.toString());
         } catch(Exception e) {
         	throw new RuntimeException(e);
         }
@@ -180,6 +194,15 @@ public class BatchJobServiceImpl implements BatchJobService {
         }
         
         log.info("Done processLandingZoneToGoldZone");
+    }
+    
+    public void cleanFiles(String dir, String fileCode) {
+    	for (File file : new java.io.File(dir).listFiles()) {
+    		if(file.getName().indexOf(fileCode)==0) {
+        		log.info(file.getName()); 
+        		file.delete();
+    		}
+    	}
     }
 
 }
