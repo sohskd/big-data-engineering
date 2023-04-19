@@ -63,19 +63,19 @@ public class BatchJobServiceImpl implements BatchJobService {
     public BatchJobServiceImpl() {
     }
 
-    @Scheduled(fixedDelay = 100000)//100sec
+    @Scheduled(fixedDelay = 50000)//100sec
     @Override
     public void process() {
         log.info("Running cron");
         try {
         	
-        	processMockZoneToLandingZone();
-        	processLandingZoneToGoldZone();
+//        	processMockZoneToLandingZone();
+//        	processLandingZoneToGoldZone();
         	List<String> errorList = new ArrayList<String>();
-        	sparkJobService.ingest_studentAssessment(errorList);
-        	sparkJobService.ingest_studentInfo(errorList);
-        	sparkJobService.ingest_studentRegistration(errorList);
-        	sparkJobService.ingest_studentVle(errorList);
+//        	sparkJobService.ingest_studentAssessment(errorList);
+//        	sparkJobService.ingest_studentInfo(errorList);
+//        	sparkJobService.ingest_studentRegistration(errorList);
+//        	sparkJobService.ingest_studentVle(errorList);
         	sparkJobService.ingest_vle(errorList);
         	log.info(errorList.toString());
         } catch(Exception e) {
@@ -194,15 +194,6 @@ public class BatchJobServiceImpl implements BatchJobService {
         }
         
         log.info("Done processLandingZoneToGoldZone");
-    }
-    
-    public void cleanFiles(String dir, String fileCode) {
-    	for (File file : new java.io.File(dir).listFiles()) {
-    		if(file.getName().indexOf(fileCode)==0) {
-        		log.info(file.getName()); 
-        		file.delete();
-    		}
-    	}
     }
 
 }

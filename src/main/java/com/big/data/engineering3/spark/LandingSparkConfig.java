@@ -25,7 +25,10 @@ public class LandingSparkConfig {
     private String password;
 
     @Value("${spring.datasource.landing.url}")
-    private String url;
+    public String url;
+    
+    @Value("${hdfs.project.id}")
+    public String projectId;
     
     @Autowired
     private SparkSession sparkSession;

@@ -27,6 +27,9 @@ public class GoldSparkConfig {
     @Value("${spring.datasource.gold.url}")
     public String url;
     
+    @Value("${hdfs.project.id}")
+    public String projectId;
+    
     @Autowired
     private SparkSession sparkSession;
     
