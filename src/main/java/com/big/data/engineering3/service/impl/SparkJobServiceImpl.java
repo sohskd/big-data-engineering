@@ -185,12 +185,6 @@ public class SparkJobServiceImpl implements SparkJobService {
     	}
     }
     public void markAsProcessed(String projectId,String bucket, String rawFolder, String processedFolder, String fileCode) throws IOException {
-//    	for (File file : new java.io.File(dir).listFiles()) {
-//    		if(file.getName().indexOf(fileCode)==0) {
-//        		log.info(file.getName()); 
-//        		file.delete();
-//    		}
-//    	}
     	Storage storage = StorageOptions.getDefaultInstance().getService();
         
         // The name of the GCS bucket

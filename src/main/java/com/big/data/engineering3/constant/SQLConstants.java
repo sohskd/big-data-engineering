@@ -10,8 +10,8 @@ public class SQLConstants {
 	public final static String TABLE_STUDENT_INFO = "studentInfo";
 	public final static String TABLE_STUDENT_REGISTRATION = "studentRegistration";
 	public final static String TABLE_STUDENT_VLE = "studentVle";
-//	public final static String TABLE_VLE = "vle";
-	public final static String TABLE_VLE = "vle_test";
+	public final static String TABLE_VLE = "vle";
+//	public final static String TABLE_VLE = "vle_test";
 	
 	//Landing Paths
 //	public final static String LANDING_PATH_ROOT = "../big-data-engineering/data/downloaded/landing_csv";

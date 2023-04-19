@@ -63,27 +63,27 @@ public class BatchJobServiceImpl implements BatchJobService {
     public BatchJobServiceImpl() {
     }
 
-    @Scheduled(fixedDelay = 50000)//100sec
-    @Override
-    public void process() {
-        log.info("Running cron");
-        try {
-        	
+//    @Scheduled(fixedDelay = 100000)//100sec
+//    @Override
+//    public void process() {
+//        log.info("Running cron");
+//        try {
+//        	
 //        	processMockZoneToLandingZone();
 //        	processLandingZoneToGoldZone();
-        	List<String> errorList = new ArrayList<String>();
+//        	List<String> errorList = new ArrayList<String>();
 //        	sparkJobService.ingest_studentAssessment(errorList);
 //        	sparkJobService.ingest_studentInfo(errorList);
 //        	sparkJobService.ingest_studentRegistration(errorList);
 //        	sparkJobService.ingest_studentVle(errorList);
-        	sparkJobService.ingest_vle(errorList);
-        	log.info(errorList.toString());
-        } catch(Exception e) {
-        	throw new RuntimeException(e);
-        }
-        
-        log.info("Done cron");
-    }
+//        	sparkJobService.ingest_vle(errorList);
+//        	log.info(errorList.toString());
+//        } catch(Exception e) {
+//        	throw new RuntimeException(e);
+//        }
+//        
+//        log.info("Done cron");
+//    }
     
     public Map<String,Timestamp> formatDeltaMap(List<Map<String, Object>> map) {
 		UnaryOperator<Map<String, Object>> formatDelta = (row) -> {
