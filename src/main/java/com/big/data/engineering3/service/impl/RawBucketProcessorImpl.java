@@ -36,10 +36,30 @@ public class RawBucketProcessorImpl implements BucketProcessor {
     public void process(TriggerEvent event) {
 
         String fileLocation = event.getName();
+
+        // ignore fileLocation = des_raw_csv/1_assessments.csv
+        // ignore fileLocation = des_raw_csv/3_courses.csv
+        String fileNumber = fileLocation.substring(fileLocation.lastIndexOf('/') + 1).substring(0, 1);
+        if (fileNumber.equals("1") || fileNumber.equals("3")) {
+            log.info(String.format("Ignoring processing of %s.", fileLocation));
+            return;
+        }
+
         if (!Files.exists(Paths.get(String.format(DOWNLOADED_PATH, fileLocation)))) {
             val blob = this.bucketAdapter.downloadBlobFromRawZone(fileLocation);
-            this.pubSubService.publishVLEData(fileLocation);
-            this.gsBucketService.writeToLandingBucket(Collections.singletonList(blob));
+
+            // only file 2, 4, 5 will be processed by dataflow jobs
+            if (fileNumber.equals("2") || fileNumber.equals("4") || fileNumber.equals("5")) {
+                this.pubSubService.publishVLEData(fileLocation);
+            }
+
+            // fileLocation = des_raw_csv/6_studentVle.csv
+            // fileLocation = des_raw_csv/7_vle.csv
+            // upload file manually due to not enough quota for dataflow jobs
+            if (fileNumber.equals("6") || fileNumber.equals("7")) {
+                this.gsBucketService.writeToLandingBucket(Collections.singletonList(blob));
+            }
+
         } else {
             log.info(String.format("%s already exist on local.", fileLocation));
         }
