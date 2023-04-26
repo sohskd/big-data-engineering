@@ -1,5 +1,6 @@
 package com.big.data.engineering3.events.spring;
 
+import com.big.data.engineering3.adapters.web.TriggerEventDto;
 import com.big.data.engineering3.service.BucketProcessor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

@@ -21,6 +21,6 @@ public class StudentVle {
     @CsvBindByPosition(position = 4)
     private String date;
 
-    @CsvBindByPosition(position = 4)
+    @CsvBindByPosition(position = 5)
     private String sumClick;
 }
