@@ -21,7 +21,7 @@ public class SparkConfig {
     private String masterUri;
     
     @Value("${hdfs.service.account}")
-    private String serviceAccount;
+    public String serviceAccount;
 
     @Value("${hdfs.project.id}")
     private String projectId;
