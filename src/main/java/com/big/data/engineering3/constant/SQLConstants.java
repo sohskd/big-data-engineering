@@ -15,8 +15,8 @@ public class SQLConstants {
 	
 	//Landing Paths
 //	public final static String LANDING_PATH_ROOT = "../big-data-engineering/data/downloaded/landing_csv";
-	public final static String LANDING_BUCKET = "zone_landing_ebd_2023";
-	public final static String LANDING_RAW_FOLDER = "des_raw_csv";
+	public final static String LANDING_BUCKET = "zone_landing_ebd_nus_2023";
+	public final static String LANDING_RAW_FOLDER = "temp_raw_csv";
 	public final static String LANDING_PROCESSED_FOLDER = "processed_csv";
 	public final static String LANDING_PATH_ROOT = "gs://"+LANDING_BUCKET+"/"+LANDING_RAW_FOLDER;
 	public final static String LANDING_PATH_STUDENT_ASSESSMENT = LANDING_PATH_ROOT+"/"+"2_*";

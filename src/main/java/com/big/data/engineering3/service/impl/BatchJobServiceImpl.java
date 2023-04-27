@@ -63,7 +63,7 @@ public class BatchJobServiceImpl implements BatchJobService {
     public BatchJobServiceImpl() {
     }
 
-//    @Scheduled(fixedDelay = 100000)//100sec
+//    @Scheduled(fixedDelay = 60000)//60sec/same as window
     @Override
     public void process() {
         log.info("Running cron");

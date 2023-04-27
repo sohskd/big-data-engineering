@@ -1,16 +1,13 @@
 package com.big.data.engineering3.service.impl;
 
 import com.big.data.engineering3.constant.SQLConstants;
-import com.big.data.engineering3.dao.GoldDAO;
-import com.big.data.engineering3.dao.LandingDAO;
-import com.big.data.engineering3.dao.MockDAO;
-import com.big.data.engineering3.dao.SensitiveDAO;
-import com.big.data.engineering3.dao.WorkDAO;
-import com.big.data.engineering3.service.BatchJobService;
 import com.big.data.engineering3.service.SparkJobService;
 import com.big.data.engineering3.spark.GoldSparkConfig;
 import com.big.data.engineering3.spark.LandingSparkConfig;
+import com.big.data.engineering3.spark.SparkConfig;
 import com.google.api.gax.paging.Page;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
@@ -19,7 +16,6 @@ import com.google.cloud.storage.StorageOptions;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
@@ -27,33 +23,14 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -65,6 +42,8 @@ public class SparkJobServiceImpl implements SparkJobService {
     private LandingSparkConfig landingSparkConfig;
     @Autowired
     private GoldSparkConfig goldSparkConfig;
+    @Autowired
+    private SparkConfig sparkConfig;
 
 
     public void ingest_studentAssessment(List<String> errorList) {
@@ -220,7 +199,7 @@ public class SparkJobServiceImpl implements SparkJobService {
       }
       return results;
     }
-    public static void moveObject(
+    public void moveObject(
     	      String projectId,
     	      String sourceBucketName,
     	      String sourceObjectName,
@@ -240,8 +219,17 @@ public class SparkJobServiceImpl implements SparkJobService {
 
     	    // The ID of your GCS object
     	    // String targetObjectName = "your-new-object-name";
-
-    	    Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+    		Credentials credentials = null;
+			try {
+				credentials = GoogleCredentials.fromStream(new FileInputStream(System.getProperty("user.dir")+sparkConfig.serviceAccount));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	    Storage storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId(projectId).build().getService();
     	    BlobId source = BlobId.of(sourceBucketName, sourceObjectName);
     	    BlobId target = BlobId.of(targetBucketName, targetObjectName);
 
