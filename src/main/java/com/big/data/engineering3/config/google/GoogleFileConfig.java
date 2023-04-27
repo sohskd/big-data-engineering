@@ -1,14 +1,18 @@
 package com.big.data.engineering3.config.google;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
@@ -24,9 +28,15 @@ public class GoogleFileConfig {
         return mapper.readValue(loadFile(), Map.class);
     }
 
+    @SneakyThrows
     @Bean
     public Storage storage() {
-        return StorageOptions.newBuilder().setProjectId(gcpProjectId).build().getService();
+        File credentialsPath = ResourceUtils.getFile("classpath:gcs-service-account.json");
+        GoogleCredentials credentials;
+        try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
+            credentials = ServiceAccountCredentials.fromStream(serviceAccountStream);
+        }
+        return StorageOptions.newBuilder().setCredentials(credentials).setProjectId(gcpProjectId).build().getService();
     }
 
     private File loadFile() throws FileNotFoundException {

@@ -100,7 +100,8 @@ public class BucketAdapter implements BucketPortIn, BucketPortOut {
             return !Files.exists(p);
         }).toList();
 
-        blobsToDownload.forEach(b -> b.downloadTo(Paths.get(String.format(location, getFileName(b.getName())))));
+        blobsToDownload.forEach(b -> b.downloadTo(Paths.get(String.format(location,
+                getFileName(b.getName()).replace(":", "-")))));
         return blobsToDownload;
     }
 
