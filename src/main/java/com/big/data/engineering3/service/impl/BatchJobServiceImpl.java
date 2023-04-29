@@ -83,7 +83,7 @@ public class BatchJobServiceImpl implements BatchJobService {
         try {
         	
 //        	processMockZoneToLandingZone();
-        	processLandingZoneToGoldZone();
+        	processSqlLandingZoneToGoldZone();
         	List<String> errorList = new ArrayList<String>();
         	sparkJobService.ingest_studentAssessment(errorList);
         	sparkJobService.ingest_studentInfo(errorList);
@@ -163,7 +163,7 @@ public class BatchJobServiceImpl implements BatchJobService {
 //    }
     
     @Transactional
-    public void processLandingZoneToGoldZone() {
+    public void processSqlLandingZoneToGoldZone() {
         log.info("Running processLandingZoneToGoldZone");
         try {
         	
