@@ -8,6 +8,7 @@ import com.google.cloud.spring.pubsub.integration.inbound.PubSubInboundChannelAd
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
@@ -19,6 +20,7 @@ import static com.big.data.engineering3.constant.GoogleCloudConstants.LANDING_SU
 
 @Slf4j
 @Service
+@ConditionalOnProperty(prefix = "subscriber.google.landing-zone", name = "enabled", havingValue = "true")
 public class LandingZoneSubAdapter implements PubSubPortIn {
 
     private static final String INPUT_CHANNEL = "landingZoneSpringInputChannel";
