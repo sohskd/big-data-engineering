@@ -11,23 +11,30 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Service;
 
-import static com.big.data.engineering3.constant.GoogleCloudConstants.CHANNEL_OUT;
-import static com.big.data.engineering3.constant.GoogleCloudConstants.TOPIC;
+import static com.big.data.engineering3.constant.GoogleCloudConstants.VLE_TOPIC;
 
 @Slf4j
 @Service
-public class PubSubAdapter implements PubSubPortOut {
+public class VlePubSubAdapter implements PubSubPortOut {
 
-    private PubsubOutboundGateway messagingGateway;
+    private static final String VLE_CHANNEL_OUT = "VleChannelOut";
+
+    private VlePubsubOutboundGateway vleMessagingGateway;
 
     @Autowired
-    public PubSubAdapter(PubsubOutboundGateway messagingGateway) {
-        this.messagingGateway = messagingGateway;
+    public VlePubSubAdapter(VlePubsubOutboundGateway VleMessagingGateway) {
+        this.vleMessagingGateway = VleMessagingGateway;
     }
 
     @Override
     public void publish(String data) {
-        messagingGateway.sendToPubsub(data);
+        log.info(String.format("Published Message -> Topic: %s, message: -> %s", VLE_TOPIC, data));
+        vleMessagingGateway.sendToPubsub(data);
+    }
+
+    @MessagingGateway(defaultRequestChannel = VLE_CHANNEL_OUT)
+    public interface VlePubsubOutboundGateway {
+        void sendToPubsub(String text);
     }
 
     /**
@@ -36,13 +43,8 @@ public class PubSubAdapter implements PubSubPortOut {
      */
 
     @Bean
-    @ServiceActivator(inputChannel = CHANNEL_OUT)
-    public MessageHandler messageSender(PubSubTemplate pubsubTemplate) {
-        return new PubSubMessageHandler(pubsubTemplate, TOPIC);
-    }
-
-    @MessagingGateway(defaultRequestChannel = CHANNEL_OUT)
-    public interface PubsubOutboundGateway {
-        void sendToPubsub(String text);
+    @ServiceActivator(inputChannel = VLE_CHANNEL_OUT)
+    public MessageHandler vleMessageSender(PubSubTemplate pubsubTemplate) {
+        return new PubSubMessageHandler(pubsubTemplate, VLE_TOPIC);
     }
 }

@@ -28,6 +28,12 @@ public class LandingBucketProcessorImpl implements BucketProcessor {
     public void process(TriggerEvent event) {
 
         String fileLocation = event.getName();
+
+        if (fileLocation.contains(".temp-beam")) {
+            log.info(String.format("Ignoring processing of %s.", fileLocation));
+            return;
+        }
+
         if (!Files.exists(Paths.get(String.format(DOWNLOADED_PATH_LANDING, getFileName(fileLocation))))) {
             this.bucketAdapter.downloadBlobFromLandingZone(fileLocation);
         } else {
