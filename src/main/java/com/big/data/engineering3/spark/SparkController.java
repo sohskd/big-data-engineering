@@ -9,10 +9,12 @@ import java.util.Properties;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.catalog.Column;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
@@ -64,13 +66,17 @@ public class SparkController {
 			Map<String, Timestamp> goldDelta = formatDeltaMap(goldDAO.getDelta());
 			// Assessments
 			log.info("Querying :: Delta assessments from landingDB");
-//	        	
-//	        	List<Map<String, Object>> landingAssessmentsDeltaInsert = landingDAO.getAssessmentsByINSERTTIMESTAMP(goldDelta.get(SQLConstants.TABLE_ASSESSMENTS));
-//	        	landingAssessmentsDeltaInsert.forEach(m->log.info(m.values().toString()));
-			Dataset<Row> landingAssessmentsDeltaInsert = landingSparkConfig.readSession(SQLConstants.TABLE_ASSESSMENTS)
-					.filter("" + ">" + goldDelta.get(SQLConstants.TABLE_ASSESSMENTS));
-			
-			return ResponseEntity.ok(responseTest(landingAssessmentsDeltaInsert));
+	
+			Dataset<Row> landingCoursesDeltaInsert = landingSparkConfig.readSession(SQLConstants.TABLE_COURSES)
+					.select("code_module","code_presentation","module_presentation_length")
+					.filter("inserttimestamp" + ">'" + goldDelta.get(SQLConstants.TABLE_COURSES)+"'");
+			landingCoursesDeltaInsert = landingCoursesDeltaInsert
+					.withColumn("module_presentation_lengthTemp", landingCoursesDeltaInsert.col("module_presentation_length").cast(DataTypes.IntegerType))
+					.drop(landingCoursesDeltaInsert.col("module_presentation_length"))
+					.withColumnRenamed("module_presentation_lengthTemp", "module_presentation_length");
+
+			landingCoursesDeltaInsert.write().mode(SaveMode.Append).jdbc(goldSparkConfig.url, SQLConstants.TABLE_COURSES, goldSparkConfig.goldConnectionProperties());
+			return ResponseEntity.ok(responseTest(landingCoursesDeltaInsert));
 
 //	        	
 //	        	int insertedGoldAssessments = goldDAO.insertAssessments(landingAssessmentsDeltaInsert);

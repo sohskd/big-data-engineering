@@ -8,8 +8,15 @@ import com.big.data.engineering3.dao.SensitiveDAO;
 import com.big.data.engineering3.dao.WorkDAO;
 import com.big.data.engineering3.service.BatchJobService;
 import com.big.data.engineering3.service.SparkJobService;
+import com.big.data.engineering3.spark.GoldSparkConfig;
+import com.big.data.engineering3.spark.LandingSparkConfig;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SaveMode;
+import org.apache.spark.sql.types.DataTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -55,7 +62,13 @@ public class BatchJobServiceImpl implements BatchJobService {
 	
 	@Autowired
 	SensitiveDAO sensitiveDAO;
-    
+	
+	@Autowired
+	private LandingSparkConfig landingSparkConfig;
+	
+	@Autowired
+	private GoldSparkConfig goldSparkConfig;
+	
 	@Autowired
     private SparkJobService sparkJobService;
 	
@@ -158,28 +171,55 @@ public class BatchJobServiceImpl implements BatchJobService {
         	Map<String,Timestamp> goldDelta = formatDeltaMap(goldDAO.getDelta());
         	//Assessments
         	log.info("Querying :: Delta assessments from landingDB");
-        	
-        	List<Map<String, Object>> landingAssessmentsDeltaInsert = landingDAO.getAssessmentsByINSERTTIMESTAMP(goldDelta.get(SQLConstants.TABLE_ASSESSMENTS));
-        	landingAssessmentsDeltaInsert.forEach(m->log.info(m.values().toString()));
-        	int insertedGoldAssessments = goldDAO.insertAssessments(landingAssessmentsDeltaInsert);
-        	log.info("insertedGoldAssessments :: " + insertedGoldAssessments);
-        	int updateGoldDeltaForAssessments = goldDAO.updateDelta(SQLConstants.TABLE_ASSESSMENTS);
+
+			Dataset<Row> landingAssessmentsDeltaInsert = landingSparkConfig.readSession(SQLConstants.TABLE_ASSESSMENTS)
+					.select("code_module","code_presentation","assessment_type","date","weight","id_assessment")
+					.filter("inserttimestamp" + ">'" + goldDelta.get(SQLConstants.TABLE_ASSESSMENTS)+"'");
+			landingAssessmentsDeltaInsert = landingAssessmentsDeltaInsert
+					.withColumn("dateTemp", landingAssessmentsDeltaInsert.col("date").cast(DataTypes.IntegerType))
+					.drop(landingAssessmentsDeltaInsert.col("date"))
+					.withColumnRenamed("dateTemp", "date")
+					.withColumn("weightTemp", landingAssessmentsDeltaInsert.col("weight").cast(DataTypes.FloatType))
+					.drop(landingAssessmentsDeltaInsert.col("weight"))
+					.withColumnRenamed("weightTemp", "weight")
+					.withColumn("id_assessmentTemp", landingAssessmentsDeltaInsert.col("id_assessment").cast(DataTypes.IntegerType))
+					.drop(landingAssessmentsDeltaInsert.col("id_assessment"))
+					.withColumnRenamed("id_assessmentTemp", "id_assessment");
+
+//			landingAssessmentsDeltaInsert.write().mode(SaveMode.Append).jdbc(goldSparkConfig.url, SQLConstants.TABLE_ASSESSMENTS, goldSparkConfig.goldConnectionProperties());
+//        	List<Map<String, Object>> landingAssessmentsDeltaInsert = landingDAO.getAssessmentsByINSERTTIMESTAMP(goldDelta.get(SQLConstants.TABLE_ASSESSMENTS));
+//        	landingAssessmentsDeltaInsert.forEach(m->log.info(m.values().toString()));
+//        	int insertedGoldAssessments = goldDAO.insertAssessments(landingAssessmentsDeltaInsert);
+//        	log.info("insertedGoldAssessments :: " + insertedGoldAssessments);
         	
         	List<Map<String, Object>> landingAssessmentsDeltaUpdate = landingDAO.getAssessmentsByCHANGETIMESTAMP(goldDelta.get(SQLConstants.TABLE_ASSESSMENTS));
         	landingAssessmentsDeltaUpdate.forEach(m->log.info(m.values().toString()));
         	int updatedGoldAssessments = goldDAO.updateAssessments(landingAssessmentsDeltaUpdate);
         	log.info("updatedGoldAssessments :: " + updatedGoldAssessments);
         	
+        	
+        	int updateGoldDeltaForAssessments = goldDAO.updateDelta(SQLConstants.TABLE_ASSESSMENTS);
+
         	log.info("updateGoldDeltaForAssessments :: " + updateGoldDeltaForAssessments);// Note: delta time is delayed 
         	
         	
         	//Courses
         	log.info("Querying :: Delta courses from landingDB");
         	
-        	List<Map<String, Object>> landingCoursesDeltaInsert = landingDAO.getCourseByINSERTTIMESTAMP(goldDelta.get(SQLConstants.TABLE_COURSES));
-        	landingCoursesDeltaInsert.forEach(m->log.info(m.values().toString()));
-        	int insertedGoldCourses = goldDAO.insertCourses(landingCoursesDeltaInsert);
-        	log.info("insertedGoldCourses :: " + insertedGoldCourses);
+        	
+			Dataset<Row> landingCoursesDeltaInsert = landingSparkConfig.readSession(SQLConstants.TABLE_COURSES)
+					.select("code_module","code_presentation","module_presentation_length")
+					.filter("inserttimestamp" + ">'" + goldDelta.get(SQLConstants.TABLE_COURSES)+"'");
+			landingCoursesDeltaInsert = landingCoursesDeltaInsert
+					.withColumn("module_presentation_lengthTemp", landingCoursesDeltaInsert.col("module_presentation_length").cast(DataTypes.IntegerType))
+					.drop(landingCoursesDeltaInsert.col("module_presentation_length"))
+					.withColumnRenamed("module_presentation_lengthTemp", "module_presentation_length");
+			landingCoursesDeltaInsert.write().mode(SaveMode.Append).jdbc(goldSparkConfig.url, SQLConstants.TABLE_COURSES, goldSparkConfig.goldConnectionProperties());
+			
+//        	List<Map<String, Object>> landingCoursesDeltaInsert = landingDAO.getCourseByINSERTTIMESTAMP(goldDelta.get(SQLConstants.TABLE_COURSES));
+//        	landingCoursesDeltaInsert.forEach(m->log.info(m.values().toString()));
+//        	int insertedGoldCourses = goldDAO.insertCourses(landingCoursesDeltaInsert);
+//        	log.info("insertedGoldCourses :: " + insertedGoldCourses);
         	
           	List<Map<String, Object>> landingCoursesDeltaUpdate = landingDAO.getCourseByCHANGETIMESTAMP(goldDelta.get(SQLConstants.TABLE_COURSES));
         	landingCoursesDeltaUpdate.forEach(m->log.info(m.values().toString()));
