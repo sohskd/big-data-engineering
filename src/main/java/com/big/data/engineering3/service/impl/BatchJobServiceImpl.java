@@ -69,7 +69,7 @@ public class BatchJobServiceImpl implements BatchJobService {
         log.info("Running cron");
         try {
         	
-        	processMockZoneToLandingZone();
+//        	processMockZoneToLandingZone();
         	processLandingZoneToGoldZone();
         	List<String> errorList = new ArrayList<String>();
         	sparkJobService.ingest_studentAssessment(errorList);
@@ -96,53 +96,58 @@ public class BatchJobServiceImpl implements BatchJobService {
 		return map.stream().map(formatDelta)
 				.collect(Collectors.toMap(m -> (String) m.get("table_name"), m -> (Timestamp) m.get("time_executed")));
 	}
-    @Transactional
-    public void processMockZoneToLandingZone() {
-        log.info("Running processMockZoneToLandingZone");
-        try {
-        	
-        	log.info("Querying :: Last Import from landingDB Delta");
-        	Map<String,Timestamp> landingDelta = formatDeltaMap(landingDAO.getDelta());
-        	//Assessments
-        	log.info("Querying :: Delta assessments from mockDB");
-        	
-        	List<Map<String, Object>> mockAssessmentsDeltaInsert = mockDAO.getAssessmentsByINSERTTIMESTAMP(landingDelta.get(SQLConstants.TABLE_ASSESSMENTS));
-        	mockAssessmentsDeltaInsert.forEach(m->log.info(m.values().toString()));
-        	int insertedLandingAssessments = landingDAO.insertAssessments(mockAssessmentsDeltaInsert);
-        	log.info("insertedLandingAssessments :: " + insertedLandingAssessments);
-        	
-        	List<Map<String, Object>> mockAssessmentsDeltaUpdate = mockDAO.getAssessmentsByCHANGETIMESTAMP(landingDelta.get(SQLConstants.TABLE_ASSESSMENTS));
-        	mockAssessmentsDeltaUpdate.forEach(m->log.info(m.values().toString()));
-        	int updatedLandingAssessments = landingDAO.updateAssessments(mockAssessmentsDeltaUpdate);
-        	log.info("updatedLandingAssessments :: " + updatedLandingAssessments);
-        	
-        	int updateLandingDeltaForAssessments = landingDAO.updateDelta(SQLConstants.TABLE_ASSESSMENTS);
-        	log.info("updateLandingDeltaForAssessments :: " + updateLandingDeltaForAssessments);// Note: delta time is delayed 
-        	
-        	
-        	//Courses
-        	log.info("Querying :: Delta courses from mockDB");
-        	
-        	List<Map<String, Object>> mockCoursesDeltaInsert = mockDAO.getCourseByINSERTTIMESTAMP(landingDelta.get(SQLConstants.TABLE_COURSES));
-        	mockCoursesDeltaInsert.forEach(m->log.info(m.values().toString()));
-        	int insertedLandingCourses = landingDAO.insertCourses(mockCoursesDeltaInsert);
-        	log.info("insertedLandingCourses :: " + insertedLandingCourses);
-        	
-        	List<Map<String, Object>> mockCoursesDeltaUpdate = mockDAO.getCourseByCHANGETIMESTAMP(landingDelta.get(SQLConstants.TABLE_COURSES));
-        	mockCoursesDeltaUpdate.forEach(m->log.info(m.values().toString()));
-        	int updatedLandingCourses = landingDAO.updateCourses(mockCoursesDeltaUpdate);
-        	log.info("updatedLandingCourses :: " + updatedLandingCourses);
-        	
-        	int updateLandingDeltaForCourses = landingDAO.updateDelta(SQLConstants.TABLE_COURSES);
-        	log.info("updateLandingDeltaForCourses :: " + updateLandingDeltaForCourses);// Note: delta time is delayed 
-
-        	
-        } catch(Exception e) {
-        	throw new RuntimeException(e);
-        }
-        
-        log.info("Done processMockZoneToLandingZone");
-    }
+    
+    
+    /*@Deprecated
+     * Replaced with CDC via Publication and Subscription
+     * */
+//    @Transactional
+//    public void processMockZoneToLandingZone() {
+//        log.info("Running processMockZoneToLandingZone");
+//        try {
+//        	
+//        	log.info("Querying :: Last Import from landingDB Delta");
+//        	Map<String,Timestamp> landingDelta = formatDeltaMap(landingDAO.getDelta());
+//        	//Assessments
+//        	log.info("Querying :: Delta assessments from mockDB");
+//        	
+//        	List<Map<String, Object>> mockAssessmentsDeltaInsert = mockDAO.getAssessmentsByINSERTTIMESTAMP(landingDelta.get(SQLConstants.TABLE_ASSESSMENTS));
+//        	mockAssessmentsDeltaInsert.forEach(m->log.info(m.values().toString()));
+//        	int insertedLandingAssessments = landingDAO.insertAssessments(mockAssessmentsDeltaInsert);
+//        	log.info("insertedLandingAssessments :: " + insertedLandingAssessments);
+//        	
+//        	List<Map<String, Object>> mockAssessmentsDeltaUpdate = mockDAO.getAssessmentsByCHANGETIMESTAMP(landingDelta.get(SQLConstants.TABLE_ASSESSMENTS));
+//        	mockAssessmentsDeltaUpdate.forEach(m->log.info(m.values().toString()));
+//        	int updatedLandingAssessments = landingDAO.updateAssessments(mockAssessmentsDeltaUpdate);
+//        	log.info("updatedLandingAssessments :: " + updatedLandingAssessments);
+//        	
+//        	int updateLandingDeltaForAssessments = landingDAO.updateDelta(SQLConstants.TABLE_ASSESSMENTS);
+//        	log.info("updateLandingDeltaForAssessments :: " + updateLandingDeltaForAssessments);// Note: delta time is delayed 
+//        	
+//        	
+//        	//Courses
+//        	log.info("Querying :: Delta courses from mockDB");
+//        	
+//        	List<Map<String, Object>> mockCoursesDeltaInsert = mockDAO.getCourseByINSERTTIMESTAMP(landingDelta.get(SQLConstants.TABLE_COURSES));
+//        	mockCoursesDeltaInsert.forEach(m->log.info(m.values().toString()));
+//        	int insertedLandingCourses = landingDAO.insertCourses(mockCoursesDeltaInsert);
+//        	log.info("insertedLandingCourses :: " + insertedLandingCourses);
+//        	
+//        	List<Map<String, Object>> mockCoursesDeltaUpdate = mockDAO.getCourseByCHANGETIMESTAMP(landingDelta.get(SQLConstants.TABLE_COURSES));
+//        	mockCoursesDeltaUpdate.forEach(m->log.info(m.values().toString()));
+//        	int updatedLandingCourses = landingDAO.updateCourses(mockCoursesDeltaUpdate);
+//        	log.info("updatedLandingCourses :: " + updatedLandingCourses);
+//        	
+//        	int updateLandingDeltaForCourses = landingDAO.updateDelta(SQLConstants.TABLE_COURSES);
+//        	log.info("updateLandingDeltaForCourses :: " + updateLandingDeltaForCourses);// Note: delta time is delayed 
+//
+//        	
+//        } catch(Exception e) {
+//        	throw new RuntimeException(e);
+//        }
+//        
+//        log.info("Done processMockZoneToLandingZone");
+//    }
     
     @Transactional
     public void processLandingZoneToGoldZone() {
